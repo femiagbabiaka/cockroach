@@ -4850,9 +4850,33 @@ alter_rename_table_stmt:
     }
   }
 | ALTER TABLE relation_expr RENAME CONSTRAINT constraint_name TO constraint_name
-  { return unimplementedWithIssue(sqllex, 32555) }
+  {
+    table, err := tree.NormalizeTableName($3.unresolvedName())
+    if err != nil {
+      sqllex.Error(err.Error())
+      return 1
+    }
+    $$.val = &tree.RenameConstraint{
+      Table: table,
+      Name:  tree.Name($6),
+      NewName: tree.Name($8),
+      IfExists: false,
+    }
+  }
 | ALTER TABLE IF EXISTS relation_expr RENAME CONSTRAINT constraint_name TO constraint_name
-  { return unimplementedWithIssue(sqllex, 32555) }
+  {
+    table, err := tree.NormalizeTableName($3.unresolvedName())
+    if err != nil {
+      sqllex.Error(err.Error())
+      return 1
+    }
+    $$.val = &tree.RenameConstraint{
+      Table: table,
+      Name:  tree.Name($6),
+      NewName: tree.Name($8),
+      IfExists: true,
+    }
+  }
 
 alter_rename_view_stmt:
   ALTER VIEW relation_expr RENAME TO view_name

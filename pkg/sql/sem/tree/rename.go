@@ -105,3 +105,26 @@ func (node *RenameColumn) Format(ctx *FmtCtx) {
 	ctx.WriteString(" TO ")
 	ctx.FormatNode(&node.NewName)
 }
+
+// RenameConstraint represents a RENAME CONSTRAINT statement.
+type RenameConstraint struct {
+	Table TableName
+	Name Name
+	NewName Name
+	// IfExists refers to the table, not the column.
+	IfExists bool
+}
+
+
+// Format implements the NodeFormatter interface.
+func (node *RenameConstraint) Format(ctx *FmtCtx) {
+	ctx.WriteString("ALTER TABLE ")
+	if node.IfExists {
+		ctx.WriteString("IF EXISTS ")
+	}
+	ctx.FormatNode(&node.Table)
+	ctx.WriteString(" RENAME CONSTRAINT ")
+	ctx.FormatNode(&node.Name)
+	ctx.WriteString(" TO ")
+	ctx.FormatNode(&node.NewName)
+}
